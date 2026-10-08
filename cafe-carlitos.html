@@ -135,8 +135,8 @@
   .photo{margin:8px auto 0;width:100%;aspect-ratio:16/11;border:3px solid var(--ink);
     background:linear-gradient(180deg,#cdb07a,#b8955a);position:relative;overflow:hidden;
     box-shadow:inset 0 0 30px rgba(59,36,18,.5)}
-  .photo img{width:100%;height:100%;display:block;object-fit:cover;object-position:50% 30%;
-    filter:sepia(.55) contrast(1.05) saturate(.9)}
+  .photo img{width:100%;height:100%;display:block;object-fit:cover;object-position:50% 12%;
+    filter:sepia(.35) contrast(1.05) saturate(.95)}
   .photo::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 30px rgba(59,36,18,.55);pointer-events:none}
   .photo .hat{position:absolute;right:6px;top:6px;width:22%;height:auto;transform:rotate(12deg);
     filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
@@ -157,11 +157,11 @@
     margin-top:8px;color:#7a1f18}
   .footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-family:'IM Fell English SC',serif;
     font-size:.78rem;letter-spacing:.2em;opacity:.75}
-  .stamp{position:absolute;right:10px;bottom:10px;background:rgba(234,215,171,.35);font-family:'IM Fell English SC',serif;color:var(--luffy-red);
+  .stamp{position:absolute;right:10px;bottom:10px;background:rgba(234,215,171,.8);font-family:'IM Fell English SC',serif;color:var(--luffy-red);
     border:3px solid var(--luffy-red);border-radius:6px;padding:2px 10px;font-size:1.1rem;letter-spacing:.15em;
-    transform:rotate(-14deg) scale(2.5);opacity:0;mix-blend-mode:multiply}
+    transform:rotate(-14deg) scale(2.5);opacity:0}
   .stamp.hit{animation:stamp .45s cubic-bezier(.3,1.6,.5,1) forwards}
-  @keyframes stamp{to{transform:rotate(-14deg) scale(1);opacity:.85}}
+  @keyframes stamp{to{transform:rotate(-14deg) scale(1);opacity:.95}}
 
   .replay{position:fixed;right:16px;top:16px;z-index:55;background:rgba(0,0,0,.45);color:#f3ead8;
     border:1px solid rgba(248,152,32,.6);border-radius:999px;padding:8px 16px;font:500 .9rem 'Jost',sans-serif;
@@ -285,11 +285,6 @@
       <img src="carlitos.jpg" alt="Carlitos">
       <span class="tag">&lt;/&gt; Java</span>
       <div class="stamp" id="stamp">NAKAMA</div>
-      <svg class="hat" viewBox="0 0 120 60" aria-hidden="true">
-        <ellipse cx="60" cy="46" rx="56" ry="11" fill="#e9b93c" stroke="#8a6414" stroke-width="2"/>
-        <path d="M28 44 C28 16 42 6 60 6 C78 6 92 16 92 44Z" fill="#f2c94c" stroke="#8a6414" stroke-width="2"/>
-        <path d="M28 36 C44 41 76 41 92 36 L92 44 C76 49 44 49 28 44Z" fill="#c8302a"/>
-      </svg>
     </div>
     <div class="doa">DEAD OR ALIVE</div>
     <div class="name">CARLITOS</div>
