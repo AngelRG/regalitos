@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¡Un 30 salvaje!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@500;600;700&family=Nunito:ital,wght@0,500;0,700;1,500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky-1:#7cc8f5;
+    --sky-2:#d8f1ff;
+    --grass-1:#7ccd5a;
+    --grass-2:#4e9e3a;
+    --grass-3:#3a7d2c;
+    --ball-red:#e3350d;
+    --ink:#222;
+    --dex-red:#dc0a2d;
+    --dex-red-dark:#9b0620;
+    --dex-screen:#9bd4a3;
+    --cream:#fff8ec;
+    --card-yellow:#f6cf3f;
+    --card-yellow-dark:#c99a17;
+    --pink:#ff6f91;
+    --pink-soft:#ffd3df;
+    --orange:#ff9f43;
+    --plum:#5b2a4a;
+    --text:#3a2533;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:linear-gradient(180deg,var(--sky-1) 0%,var(--sky-2) 55%,var(--grass-1) 55.1%,var(--grass-2) 100%);
+    font-family:'Nunito',sans-serif;color:var(--text);
+    overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
+  }
+
+  /* ---------- pantalla de inicio ---------- */
+  .start{position:fixed;inset:0;z-index:80;background:radial-gradient(circle at 50% 40%,#2a2350,#0b0a18 70%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;color:#fff;text-align:center;
+    padding:16px;cursor:pointer;transition:opacity .6s ease}
+  .start.gone{opacity:0;pointer-events:none}
+  .start .logo{width:110px;height:110px;animation:spin 4s linear infinite}
+  .start h1{font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(2rem,9vw,3.4rem);letter-spacing:.02em;
+    color:#ffcb05;-webkit-text-stroke:2px #2a75bb;paint-order:stroke fill;text-shadow:0 4px 0 #2a75bb}
+  .start .sub{font-family:'Press Start 2P',monospace;font-size:clamp(.55rem,2.6vw,.75rem);line-height:1.8;opacity:.85}
+  .start .press{font-family:'Press Start 2P',monospace;font-size:clamp(.6rem,2.8vw,.8rem);color:#ffcb05;animation:blink 1.1s steps(2) infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes blink{50%{opacity:0}}
+
+  /* transición de batalla */
+  .wipe{position:fixed;inset:0;z-index:75;pointer-events:none;display:flex;flex-direction:column}
+  .wipe i{flex:1;background:#111;transform:scaleX(0)}
+  .wipe i:nth-child(odd){transform-origin:left}
+  .wipe i:nth-child(even){transform-origin:right}
+  .wipe.close i{animation:wipeIn .5s cubic-bezier(.7,0,.3,1) forwards}
+  .wipe.open i{transform:scaleX(1);animation:wipeOut .55s cubic-bezier(.7,0,.3,1) forwards}
+  .wipe i:nth-child(2){animation-delay:.04s}.wipe i:nth-child(3){animation-delay:.08s}.wipe i:nth-child(4){animation-delay:.12s}
+  .wipe i:nth-child(5){animation-delay:.16s}.wipe i:nth-child(6){animation-delay:.2s}.wipe i:nth-child(7){animation-delay:.24s}
+  .wipe i:nth-child(8){animation-delay:.28s}
+  @keyframes wipeIn{to{transform:scaleX(1)}}
+  @keyframes wipeOut{to{transform:scaleX(0)}}
+  .flashes{position:fixed;inset:0;z-index:76;background:#fff;opacity:0;pointer-events:none}
+  .flashes.go{animation:flashes .9s steps(1) forwards}
+  @keyframes flashes{0%{opacity:1}16%{opacity:0}33%{opacity:1}50%{opacity:0}66%{opacity:1}83%,100%{opacity:0}}
+
+  /* ---------- campo ---------- */
+  .field{position:fixed;inset:0;z-index:1;cursor:crosshair;touch-action:none}
+  .cloud{position:absolute;background:#fff;border-radius:999px;opacity:.85;animation:drift linear infinite}
+  .cloud::before,.cloud::after{content:"";position:absolute;background:#fff;border-radius:50%}
+  .cloud::before{width:55%;height:160%;left:15%;bottom:20%}
+  .cloud::after{width:40%;height:130%;right:12%;bottom:15%}
+  @keyframes drift{from{transform:translateX(-30vw)}to{transform:translateX(130vw)}}
+  .hills{position:absolute;left:-10%;right:-10%;top:49%;height:14%;
+    background:radial-gradient(ellipse at 20% 100%,#8fd96b 60%,transparent 61%),radial-gradient(ellipse at 70% 100%,#86d462 55%,transparent 56%)}
+  .tuft{position:absolute;width:46px;height:30px;bottom:0}
+  .platform{position:absolute;left:50%;width:min(80vw,460px);height:60px;transform:translateX(-50%);border-radius:50%;
+    background:radial-gradient(ellipse,#a5e07e 0%,#6fbf4c 60%,#4e9e3a 100%);box-shadow:inset 0 -6px 0 rgba(0,0,0,.12)}
+
+  .mon{position:fixed;left:0;top:0;z-index:5;pointer-events:none;will-change:transform}
+  .mon-body{position:relative;transform-origin:50% 0%;transition:transform .55s cubic-bezier(.6,0,.4,1), filter .3s ease}
+  .mon-body.idle{animation:breathe 1.6s ease-in-out infinite}
+  @keyframes breathe{50%{transform:scale(1.04,.97)}}
+  .num{display:block;font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(96px,22vw,150px);line-height:.95;
+    background:linear-gradient(180deg,#ffb3c9 0%,var(--pink) 55%,#e8456e 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+    -webkit-text-stroke:5px var(--plum);paint-order:stroke fill;filter:drop-shadow(0 6px 0 rgba(91,42,74,.25))}
+  .face{position:absolute;left:0;right:0;top:36%;display:flex;justify-content:center;gap:16%}
+  .face i{width:16px;height:21px;background:var(--plum);border-radius:50%;position:relative;animation:blinkEye 4s infinite}
+  .face i::after{content:"";position:absolute;width:5px;height:5px;background:#fff;border-radius:50%;top:3px;left:3px}
+  @keyframes blinkEye{0%,46%,50%,100%{transform:scaleY(1)}48%{transform:scaleY(.1)}}
+  .cheeks{position:absolute;left:0;right:0;top:52%;display:flex;justify-content:center;gap:38%}
+  .cheeks b{width:16px;height:9px;border-radius:50%;background:#ff3d6e;opacity:.55}
+  .smile{position:absolute;left:50%;top:51%;width:16px;height:9px;margin-left:-8px;border:3px solid var(--plum);border-top:0;border-radius:0 0 14px 14px}
+  .surprise{position:absolute;right:-18px;top:-26px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:36px;color:#e3350d;
+    -webkit-text-stroke:2px #fff;paint-order:stroke fill;opacity:0;transform:scale(0)}
+  .surprise.on{opacity:1;transform:scale(1);transition:transform .2s cubic-bezier(.3,1.8,.5,1)}
+  .mon-body.absorb{transform:scale(0) translateY(-80%);filter:brightness(1.4) sepia(1) saturate(8) hue-rotate(-30deg)}
+  .shadow{position:fixed;left:0;top:0;width:110px;height:18px;border-radius:50%;background:rgba(0,0,0,.18);z-index:4;pointer-events:none}
+
+  .hud{position:fixed;left:12px;top:12px;z-index:20;background:#f8f8e8;border:3px solid #444;border-radius:10px 10px 10px 2px;
+    padding:8px 12px 10px;font-family:'Press Start 2P',monospace;font-size:clamp(.55rem,2.4vw,.7rem);color:#333;min-width:190px;
+    box-shadow:4px 4px 0 rgba(0,0,0,.2);opacity:0;transform:translateX(-30px);transition:all .5s ease}
+  .hud.on{opacity:1;transform:none}
+  .hud .row{display:flex;justify-content:space-between;gap:10px}
+  .hud .hp{display:flex;align-items:center;gap:6px;margin-top:8px}
+  .hud .hp span{font-size:.75em;color:#e0a000}
+  .hud .bar{flex:1;height:8px;border:2px solid #444;border-radius:4px;background:#555;overflow:hidden}
+  .hud .bar i{display:block;height:100%;width:100%;background:#4cd964}
+
+  .ball{position:fixed;left:0;top:0;width:58px;height:58px;z-index:10;pointer-events:none;will-change:transform}
+  .ball svg{width:100%;height:100%;overflow:visible;display:block}
+  .ball .lid{transform-box:view-box;transform-origin:8px 50px;transition:transform .25s ease}
+  .ball.open .lid{transform:rotate(-55deg)}
+  .ball.shake{animation:shake .7s ease-in-out}
+  @keyframes shake{0%,100%{rotate:0deg}20%{rotate:-22deg}45%{rotate:18deg}70%{rotate:-8deg}}
+  .ball.caught svg{filter:brightness(.82)}
+  .ball.ready{animation:readyBob 1.4s ease-in-out infinite}
+  @keyframes readyBob{50%{translate:0 -6px}}
+  .beam{position:fixed;left:0;top:0;width:12px;z-index:9;pointer-events:none;transform-origin:50% 0;border-radius:6px;
+    background:linear-gradient(#fff,#ff5a5a);opacity:0;box-shadow:0 0 16px #ff4d4d}
+  .star{position:fixed;z-index:12;width:20px;height:20px;pointer-events:none;color:#ffd84a;font-size:20px;line-height:20px;text-align:center;
+    animation:starOut .9s ease-out forwards}
+  @keyframes starOut{from{transform:translate(0,0) scale(.4);opacity:1}to{transform:translate(var(--dx),var(--dy)) scale(1.2);opacity:0}}
+
+  .textbox{position:fixed;left:50%;bottom:12px;width:calc(100% - 24px);max-width:640px;transform:translateX(-50%);z-index:30;
+    background:#fdfdf6;border:4px solid #3d4a73;border-radius:12px;box-shadow:inset 0 0 0 4px #c6d3f2, 0 6px 0 rgba(0,0,0,.18);
+    padding:16px 18px;min-height:84px;font-family:'Press Start 2P',monospace;font-size:clamp(.62rem,2.8vw,.82rem);line-height:1.9;color:#333;
+    opacity:0;transition:opacity .3s ease}
+  .textbox.on{opacity:1}
+  .textbox .caret{display:inline-block;margin-left:6px;color:#e3350d;animation:blink .8s steps(2) infinite}
+
+  /* ---------- Pokédex ---------- */
+  .dex-stage{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;
+    background:rgba(10,20,40,.55);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .5s ease}
+  .dex-stage.on{opacity:1;pointer-events:auto}
+  .dex{width:min(92vw,380px);background:linear-gradient(160deg,#f0294a,var(--dex-red) 45%,var(--dex-red-dark));border-radius:18px 18px 22px 22px;
+    padding:16px 18px 20px;box-shadow:0 20px 50px rgba(0,0,0,.5), inset 0 -6px 0 rgba(0,0,0,.2);
+    transform:translateY(40px) scale(.9);transition:transform .6s cubic-bezier(.2,1.4,.4,1), opacity .6s ease}
+  .dex-stage.on .dex{transform:none}
+  .dex.zoomout{transform:scale(1.6) !important;opacity:0}
+  .dex-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .lens{width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#bfe9ff,#29a8e8 45%,#0d5f9e);
+    border:5px solid #fff;box-shadow:0 0 0 3px #333, 0 0 18px #6fd3ff;animation:lensPulse 1s ease-in-out infinite}
+  @keyframes lensPulse{50%{box-shadow:0 0 0 3px #333, 0 0 4px #6fd3ff}}
+  .light{width:14px;height:14px;border-radius:50%;border:2px solid #333;align-self:flex-start;margin-top:4px}
+  .dex-screen-wrap{background:#dedede;border-radius:8px 8px 8px 28px;padding:14px 16px 18px;box-shadow:inset 0 0 0 3px #333}
+  .dex-screen{background:#1f2a20;border-radius:6px;padding:12px;color:var(--dex-screen);font-family:'Press Start 2P',monospace;font-size:.6rem;
+    line-height:1.8;position:relative;overflow:hidden;box-shadow:inset 0 0 20px rgba(0,0,0,.6)}
+  .dex-screen::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px)}
+  .dex-head{display:flex;justify-content:space-between}
+  .dex-photo{margin:10px auto;width:62%;aspect-ratio:4/5;border:2px solid var(--dex-screen);border-radius:4px;overflow:hidden;background:#000}
+  .dex-photo img{width:100%;height:100%;object-fit:cover;filter:blur(14px) grayscale(1) brightness(.6);transition:filter .3s linear}
+  .dex-bar{height:10px;border:2px solid var(--dex-screen);border-radius:3px;padding:1px}
+  .dex-bar i{display:block;height:100%;width:0;background:var(--dex-screen)}
+  .dex-status{min-height:3.6em;margin-top:8px}
+  .dex-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+  .dpad{width:54px;height:54px;position:relative}
+  .dpad::before,.dpad::after{content:"";position:absolute;background:#333;border-radius:4px}
+  .dpad::before{left:18px;top:0;width:18px;height:54px}.dpad::after{top:18px;left:0;height:18px;width:54px}
+  .dex-btn{font-family:'Press Start 2P',monospace;font-size:.6rem;background:#333;color:#fff;border:0;border-radius:8px;padding:10px 12px;
+    box-shadow:0 4px 0 #111;cursor:pointer;opacity:.35;pointer-events:none;transition:opacity .3s}
+  .dex-btn.ready{opacity:1;pointer-events:auto;animation:readyBob 1.2s ease-in-out infinite}
+
+  /* ---------- carta ---------- */
+  .card-stage{position:fixed;inset:0;z-index:60;overflow-y:auto;padding:24px 16px 40px;
+    background:radial-gradient(circle at 50% 0%,#ffe9f0,#ffd6e2 40%,#f7b6c9 100%);opacity:0;pointer-events:none;transition:opacity .8s ease}
+  .card-stage.on{opacity:1;pointer-events:auto}
+  .card{max-width:440px;margin:0 auto;background:var(--card-yellow);border-radius:18px;padding:10px;
+    box-shadow:0 18px 40px rgba(120,30,60,.35), inset 0 0 0 2px var(--card-yellow-dark);
+    transform:translateY(30px) rotateY(90deg);transition:transform 1s cubic-bezier(.2,1,.3,1) .2s}
+  .card-stage.on .card{transform:none}
+  .card-inner{background:linear-gradient(180deg,#fff3f6,var(--cream) 30%);border-radius:10px;padding:14px 16px 18px;position:relative;overflow:hidden}
+  .card-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .card-head .stage{font-family:'Fredoka',sans-serif;font-size:.7rem;font-weight:600;background:#e9e2d0;border-radius:6px;padding:2px 8px;color:#6a5a40}
+  .card-head h2{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.9rem;color:var(--plum);line-height:1;flex:1;margin-left:6px}
+  .card-head .hp{font-family:'Fredoka',sans-serif;font-weight:700;color:#d6264f;font-size:1.05rem;white-space:nowrap}
+  .card-head .hp small{font-size:.65rem;margin-right:2px}
+  .photo-frame{position:relative;margin-top:10px;border:5px solid #d8b23c;border-radius:6px;
+    box-shadow:inset 0 0 0 2px #fff, 0 3px 8px rgba(0,0,0,.2);aspect-ratio:4/4.3;
+    background:radial-gradient(circle at 50% 40%,#fff6c8,#ffd36e 70%)}
+  .photo-frame img{width:100%;height:100%;object-fit:cover;object-position:50% 25%;display:block}
+  .holo{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;
+    background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.7) 45%,rgba(255,170,220,.5) 52%,transparent 65%);
+    background-size:250% 100%;animation:holo 5s ease-in-out infinite}
+  @keyframes holo{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+  .flowers{position:absolute;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25))}
+  .flowers.left{left:-26px;bottom:-30px;width:46%}
+  .flowers.right{right:-24px;bottom:-26px;width:42%}
+  .flowers.top{right:-18px;top:-20px;width:30%;transform:rotate(15deg)}
+  .dex-strip{margin-top:30px;background:linear-gradient(90deg,#d8b23c,#f1d66e,#d8b23c);border-radius:4px;padding:4px 8px;text-align:center;
+    font-family:'Fredoka',sans-serif;font-size:.74rem;font-weight:600;color:#5a4410;font-style:italic}
+  .move{margin-top:12px;display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:start}
+  .move .cost{display:flex;gap:3px;padding-top:3px}
+  .energy{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:.65rem;color:#fff;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
+  .energy.heart{background:#ff5d8f}.energy.fire{background:#ff8a2b}.energy.star{background:#f2b705}
+  .move h3{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.08rem;color:#2c2c2c}
+  .move .dmg{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.2rem;color:#2c2c2c}
+  .move p{grid-column:2 / 4;font-size:.86rem;line-height:1.4;color:#4a3a40}
+  .ability-tag{display:inline-block;background:#d6264f;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:.7rem;
+    border-radius:4px;padding:1px 6px;margin-right:6px;vertical-align:2px;font-style:normal}
+  .sep{display:flex;align-items:center;gap:10px;margin:18px 0 12px}
+  .sep::before,.sep::after{content:"";flex:1;height:2px;background:linear-gradient(90deg,transparent,#e5a2b6,transparent)}
+  .sep svg{width:26px;height:26px}
+  .bday{font-family:'Fredoka',sans-serif;font-weight:700;text-align:center;color:#d6264f;font-size:clamp(1.45rem,6.4vw,1.85rem);line-height:1.15}
+  .bday span{display:block;font-size:.6em;color:var(--plum);font-weight:600;margin-top:4px}
+  .letter{margin-top:12px;font-size:1rem;line-height:1.6;color:var(--text)}
+  .letter p+p{margin-top:10px}
+  .letter strong{color:#c2185b}
+  .sign{font-family:'Dancing Script',cursive;font-weight:700;font-size:1.6rem;text-align:right;color:var(--plum);margin-top:10px}
+  .garland{display:block;width:100%;margin-top:6px}
+  .card-actions{text-align:center;margin-top:18px}
+  .again{font-family:'Press Start 2P',monospace;font-size:.6rem;background:#fff;color:var(--plum);border:3px solid var(--plum);border-radius:999px;
+    padding:10px 16px;cursor:pointer;box-shadow:0 4px 0 var(--plum)}
+  .again:active{transform:translateY(3px);box-shadow:0 1px 0 var(--plum)}
+
+  .petal{position:fixed;top:-30px;z-index:65;pointer-events:none;width:12px;height:16px;border-radius:70% 0 70% 0;
+    animation:petal var(--d) linear var(--delay) forwards}
+  @keyframes petal{to{transform:translate(var(--x),112vh) rotate(var(--r))}}
+
+  @media (prefers-reduced-motion: reduce){
+    .cloud,.holo,.mon-body.idle,.start .logo{animation:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- Poké Ball reutilizable -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="pokeball" viewBox="0 0 100 100">
+      <g class="lid">
+        <path d="M5 50 A45 45 0 0 1 95 50 Z" fill="#e3350d" stroke="#222" stroke-width="5"/>
+        <path d="M18 34 A34 34 0 0 1 40 14" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+      </g>
+      <path d="M5 50 A45 45 0 0 0 95 50 Z" fill="#fafafa" stroke="#222" stroke-width="5"/>
+      <line x1="5" y1="50" x2="95" y2="50" stroke="#222" stroke-width="7"/>
+      <circle cx="50" cy="50" r="14" fill="#fafafa" stroke="#222" stroke-width="6"/>
+      <circle cx="50" cy="50" r="6" fill="#fff" stroke="#bbb" stroke-width="2"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="start" id="start">
+  <svg class="logo" viewBox="0 0 100 100"><use href="#pokeball"/></svg>
+  <h1>Geral · Edición 30</h1>
+  <div class="sub">Una entrenadora legendaria<br>está a punto de subir de nivel…</div>
+  <div class="press">▶ TOCA PARA EMPEZAR</div>
+</div>
+
+<div class="flashes" id="flashes"></div>
+<div class="wipe" id="wipe"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+<div class="field" id="field">
+  <div class="cloud" style="top:8%;width:120px;height:34px;animation-duration:48s;animation-delay:-10s"></div>
+  <div class="cloud" style="top:18%;width:80px;height:24px;animation-duration:36s;animation-delay:-28s"></div>
+  <div class="cloud" style="top:4%;width:150px;height:40px;animation-duration:60s;animation-delay:-44s;opacity:.7"></div>
+  <div class="hills"></div>
+  <div class="platform" id="platform"></div>
+</div>
+
+<div class="hud" id="hud">
+  <div class="row"><span>30 ♀</span><span>Nv.30</span></div>
+  <div class="hp"><span>PS</span><div class="bar"><i></i></div></div>
+</div>
+
+<div class="shadow" id="shadow"></div>
+<div class="mon" id="mon">
+  <div class="mon-body idle" id="monBody">
+    <span class="num">30</span>
+    <div class="face"><i></i><i></i></div>
+    <div class="cheeks"><b></b><b></b></div>
+    <div class="smile"></div>
+    <div class="surprise" id="surprise">!</div>
+  </div>
+</div>
+
+<div class="beam" id="beam"></div>
+<div class="ball" id="ball"><svg viewBox="0 0 100 100"><use href="#pokeball"/></svg></div>
+
+<div class="textbox" id="textbox"></div>
+
+<!-- Pokédex -->
+<div class="dex-stage" id="dexStage">
+  <div class="dex" id="dex">
+    <div class="dex-top">
+      <div class="lens"></div>
+      <div class="light" style="background:#ff4d4d"></div>
+      <div class="light" style="background:#ffd84a"></div>
+      <div class="light" style="background:#4cd964"></div>
+    </div>
+    <div class="dex-screen-wrap">
+      <div class="dex-screen">
+        <div class="dex-head"><span>POKéDEX</span><span>Nº 030</span></div>
+        <div class="dex-photo"><img id="dexImg" src="geral.jpg" alt="Geral"></div>
+        <div class="dex-bar"><i id="dexBar"></i></div>
+        <div class="dex-status" id="dexStatus">Iniciando…</div>
+      </div>
+    </div>
+    <div class="dex-bottom">
+      <div class="dpad"></div>
+      <button class="dex-btn" id="dexBtn" type="button">VER ENTRADA ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- Carta -->
+<div class="card-stage" id="cardStage">
+  <article class="card">
+    <div class="card-inner">
+      <div class="card-head">
+        <span class="stage">Entrenadora</span>
+        <h2>Geral</h2>
+        <span class="hp"><small>PS</small>300</span>
+        <span class="energy heart">♥</span>
+      </div>
+
+      <div class="photo-frame">
+        <img src="geral.jpg" alt="Geral sonriendo">
+        <div class="holo"></div>
+        <svg class="flowers top" id="flTop" viewBox="0 0 120 120"></svg>
+        <svg class="flowers left" id="flLeft" viewBox="0 0 170 150"></svg>
+        <svg class="flowers right" id="flRight" viewBox="0 0 160 150"></svg>
+      </div>
+
+      <div class="dex-strip">Nº 030 · Entrenadora Legendaria · Tipo Corazón/Fuerza · Nivel 30</div>
+
+      <div class="move">
+        <div class="cost"><span class="energy star">★</span></div>
+        <h3>Corazón Indomable</h3>
+        <div></div>
+        <p><span class="ability-tag">Habilidad</span>Aunque el camino se ponga difícil, siempre encuentra la fuerza para levantarse y seguir adelante por sus propios medios.</p>
+      </div>
+      <div class="move">
+        <div class="cost"><span class="energy heart">♥</span><span class="energy fire">✦</span></div>
+        <h3>Sonrisa Crítica</h3>
+        <div class="dmg">∞</div>
+        <p>¡Es súper eficaz contra los días grises!</p>
+      </div>
+
+      <div class="sep"><svg viewBox="0 0 100 100"><use href="#pokeball"/></svg></div>
+
+      <div class="bday">¡Feliz cumpleaños, Geral!<span>¡Has alcanzado el nivel 30!</span></div>
+
+      <div class="letter">
+        <p>Por ser una <strong>entrenadora muy fuerte</strong>, ganadora de muchas batallas — incluso de esas que nadie más ve.</p>
+        <p>Sé que últimamente el camino se ha sentido largo y un poco solitario. Pero hasta las mejores entrenadoras atraviesan rutas difíciles, cuevas oscuras y días de lluvia… y tú siempre has sabido levantarte, curarte y seguir adelante con tu propia fuerza.</p>
+        <p>Nunca olvides que llevas dentro todo lo que necesitas para ganar cualquier batalla. Y aunque a veces no lo parezca, <strong>no estás sola</strong>: aquí hay alguien que te admira, cree en ti y te apoya en cada paso.</p>
+        <p>Que este nuevo nivel te traiga las mejores evoluciones, muchas aventuras y razones de sobra para sonreír. 🌷</p>
+      </div>
+      <div class="sign">Con todo mi cariño ♥</div>
+
+      <svg class="garland" id="garland" viewBox="0 0 360 110"></svg>
+    </div>
+  </article>
+  <div class="card-actions"><button class="again" id="again" type="button">↻ JUGAR DE NUEVO</button></div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- flores ---------- */
+  function gerbera(cx, cy, r, petal, petal2, center) {
+    let s = '';
+    const n = 22;
+    for (let i = 0; i < n; i++) {
+      s += `<ellipse cx="${cx}" cy="${cy - r * .55}" rx="${r * .12}" ry="${r * .47}" fill="${petal}" transform="rotate(${i * 360 / n} ${cx} ${cy})"/>`;
+    }
+    for (let i = 0; i < n; i++) {
+      s += `<ellipse cx="${cx}" cy="${cy - r * .42}" rx="${r * .09}" ry="${r * .32}" fill="${petal2}" transform="rotate(${i * 360 / n + 8} ${cx} ${cy})"/>`;
+    }
+    s += `<circle cx="${cx}" cy="${cy}" r="${r * .3}" fill="#f3c33a"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="${r * .22}" fill="${center}"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="${r * .14}" fill="none" stroke="#f3c33a" stroke-width="${r * .04}" stroke-dasharray="${r * .03} ${r * .05}"/>`;
+    return s;
+  }
+  function tulip(x, y, sc, color, light, rot = 0, stem = 0) {
+    return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${sc})">
+      ${stem ? `<path d="M0 18 Q-3 ${18 + stem / 2} 0 ${18 + stem}" stroke="#4f9a3a" stroke-width="3.5" fill="none"/>
+      <path d="M0 ${12 + stem} Q-24 ${stem - 10} -16 ${stem - 32} Q-6 ${stem - 10} 0 ${12 + stem}Z" fill="#5fae45"/>` : ''}
+      <path d="M-14 -6 Q-16 18 0 20 Q16 18 14 -6 L7 4 L0 -12 L-7 4 Z" fill="${color}"/>
+      <path d="M-7 4 Q0 -14 7 4 Q8 16 0 18 Q-8 16 -7 4Z" fill="${light}"/>
+      <path d="M-10 0 Q-11 12 -4 16" stroke="#fff" stroke-width="2" fill="none" opacity=".35" stroke-linecap="round"/>
+    </g>`;
+  }
+  const leaf = (x, y, rot, sc = 1) =>
+    `<path transform="translate(${x} ${y}) rotate(${rot}) scale(${sc})" d="M0 0 Q18 -10 40 0 Q18 10 0 0Z" fill="#5fae45"/>`;
+
+  $('flLeft').innerHTML =
+    leaf(70, 120, -150, 1.4) + leaf(90, 120, -20, 1.3) +
+    tulip(30, 70, 1.5, '#e8365d', '#ff6f8b', -18) +
+    gerbera(110, 85, 46, '#ff6f91', '#ff9fb6', '#5a2d1a') +
+    gerbera(55, 115, 32, '#ff9f43', '#ffc27a', '#4a2a12');
+  $('flRight').innerHTML =
+    leaf(80, 128, -160, 1.3) + leaf(100, 120, -40, 1.2) +
+    gerbera(60, 92, 40, '#ffd23f', '#ffe68a', '#5a3a12') +
+    tulip(118, 68, 1.6, '#c86dd7', '#e2a3ec', 14) +
+    tulip(130, 118, 1.3, '#ff6f91', '#ffb1c3', 22);
+  $('flTop').innerHTML = leaf(40, 70, -120, 1.2) + gerbera(60, 55, 38, '#e8365d', '#ff7a95', '#4a1f12');
+
+  let g = '';
+  const items = [
+    ['t', 22, '#ff6f91', '#ffb1c3'], ['g', 62, '#ff9f43', '#ffc27a'], ['t', 102, '#c86dd7', '#e2a3ec'],
+    ['g', 142, '#ff6f91', '#ff9fb6'], ['t', 180, '#e8365d', '#ff6f8b'], ['g', 218, '#ffd23f', '#ffe68a'],
+    ['t', 258, '#ff9f43', '#ffcf8a'], ['g', 298, '#e8365d', '#ff7a95'], ['t', 338, '#ff6f91', '#ffb1c3']
+  ];
+  items.forEach(([k, x, c, l], i) => {
+    const y = i % 2 ? 46 : 36;
+    if (k === 't') g += tulip(x, y, 1.15, c, l, (i % 3 - 1) * 6, 52);
+    else g += `<path d="M${x} ${y} Q${x + 3} ${y + 35} ${x} 110" stroke="#4f9a3a" stroke-width="3.5" fill="none"/>` + leaf(x, 95, -40, .8) + gerbera(x, y, 24, c, l, '#4a2a12');
+  });
+  $('garland').innerHTML = g;
+
+  /* ---------- texto estilo juego ---------- */
+  const textbox = $('textbox');
+  let typing = 0;
+  async function say(text, hold = 900) {
+    const id = ++typing;
+    textbox.classList.add('on');
+    textbox.textContent = '';
+    for (let i = 1; i <= text.length; i++) {
+      if (id !== typing) return;
+      textbox.textContent = text.slice(0, i);
+      await sleep(reduce ? 0 : 26);
+    }
+    const c = document.createElement('span');
+    c.className = 'caret'; c.textContent = '▼';
+    textbox.appendChild(c);
+    await sleep(hold);
+  }
+
+  /* ---------- escena ---------- */
+  const mon = $('mon'), monBody = $('monBody'), shadow = $('shadow'), ball = $('ball'), beam = $('beam');
+  const platform = $('platform'), field = $('field'), hud = $('hud');
+  let W, H, cx, baseY, amp, monW = 160, monH = 140;
+  const layout = () => {
+    W = innerWidth; H = innerHeight;
+    cx = W / 2; baseY = H * .34; amp = Math.min(W * .3, 230);
+    monW = mon.offsetWidth || monW; monH = mon.offsetHeight || monH;
+    platform.style.top = (baseY + monH * .38) + 'px';
+    if (ballState === 'rest') placeBallRest();
+  };
+
+  let phase = 0, speed = 1.3, enterOff = 0, moving = false, frozen = false, monVisible = false;
+  let monX = 0, monY = 0, last = performance.now();
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    if (monVisible && !frozen) {
+      if (moving) phase += dt * speed;
+      enterOff = Math.max(0, enterOff - dt * 900);
+      monX = cx + amp * Math.sin(phase) + enterOff;
+      monY = baseY - Math.abs(Math.sin(phase * 2.4)) * (moving ? 18 : 0);
+      mon.style.transform = `translate(${monX - monW / 2}px, ${monY - monH / 2}px)`;
+      const sw = monW * .7;
+      shadow.style.width = sw + 'px';
+      shadow.style.transform = `translate(${monX - sw / 2}px, ${baseY + monH * .42}px)`;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // Poké Ball
+  let ballState = 'hidden';
+  const setBall = (x, y, rot = 0, sc = 1) => ball.style.transform = `translate(${x - 29}px, ${y - 29}px) rotate(${rot}deg) scale(${sc})`;
+  const restPos = () => ({ x: W / 2, y: H - 150 });
+  const placeBallRest = () => { const p = restPos(); setBall(p.x, p.y); };
+
+  const tween = (dur, fn) => new Promise(res => {
+    const t0 = performance.now();
+    const step = now => {
+      const t = Math.min(1, (now - t0) / dur);
+      fn(t);
+      t < 1 ? requestAnimationFrame(step) : res();
+    };
+    requestAnimationFrame(step);
+  });
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+  const bounce = t => {
+    const n = 7.5625, d = 2.75;
+    if (t < 1 / d) return n * t * t;
+    if (t < 2 / d) return n * (t -= 1.5 / d) * t + .75;
+    if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + .9375;
+    return n * (t -= 2.625 / d) * t + .984375;
+  };
+
+  async function flyBall(to, dur = 650, spins = 2) {
+    const from = restPos();
+    const c = { x: (from.x + to.x) / 2, y: Math.min(from.y, to.y) - Math.min(220, H * .25) };
+    await tween(dur, t => {
+      const u = 1 - t;
+      const x = u * u * from.x + 2 * u * t * c.x + t * t * to.x;
+      const y = u * u * from.y + 2 * u * t * c.y + t * t * to.y;
+      setBall(x, y, t * 360 * spins, 1 - .25 * t);
+    });
+  }
+
+  let misses = 0;
+  const missLines = ['¡Uy! ¡El 30 lo esquivó!', '¡Casi! Inténtalo otra vez.', '¡El 30 se está cansando…!', '¡Ya casi! ¡Tú puedes!'];
+
+  async function onThrow(e) {
+    if (ballState !== 'ready') return;
+    ballState = 'flying';
+    ball.classList.remove('ready');
+    const tap = { x: e.clientX, y: e.clientY };
+    const hitR = Math.max(monW, monH) * .62 + misses * 12;
+    const hit = Math.hypot(tap.x - monX, tap.y - monY) < hitR;
+
+    if (hit) {
+      frozen = true;
+      monBody.classList.remove('idle');
+      $('surprise').classList.add('on');
+      await flyBall({ x: monX, y: monY }, 600, 2);
+      return catchSequence();
+    }
+
+    await flyBall(tap, 600, 2);
+    const p = { x: tap.x, y: tap.y };
+    await tween(450, t => setBall(p.x + t * 30, p.y + t * t * 260, 720 + t * 200, .75));
+    ball.style.opacity = 0;
+    speed = Math.max(.35, speed * .72);
+    say(missLines[Math.min(misses, missLines.length - 1)], 0);
+    misses++;
+    await sleep(700);
+    placeBallRest();
+    ball.style.opacity = 1;
+    ballState = 'ready';
+    ball.classList.add('ready');
+  }
+
+  async function catchSequence() {
+    const hover = { x: monX, y: monY - monH * .62 };
+    const cur = { x: monX, y: monY };
+    await tween(260, t => setBall(cur.x, cur.y + (hover.y - cur.y) * easeOut(t), 0, .75));
+    ball.classList.add('open');
+    $('surprise').classList.remove('on');
+
+    // rayo rojo
+    beam.style.height = (monH * .55) + 'px';
+    beam.style.transform = `translate(${hover.x - 6}px, ${hover.y}px)`;
+    beam.style.transition = 'opacity .15s';
+    beam.style.opacity = .9;
+    monBody.classList.add('absorb');
+    shadow.style.transition = 'opacity .4s'; shadow.style.opacity = 0;
+    await sleep(600);
+    beam.style.opacity = 0;
+    ball.classList.remove('open');
+    await sleep(250);
+
+    const ground = baseY + monH * .36;
+    await tween(800, t => setBall(hover.x, hover.y + (ground - hover.y) * bounce(t), 0, .75));
+    ball.style.transform = `translate(${hover.x - 29}px, ${ground - 29}px) scale(.75)`;
+
+    say('…', 0);
+    for (let i = 0; i < 3; i++) {
+      await sleep(550);
+      ball.classList.remove('shake'); void ball.offsetWidth;
+      ball.classList.add('shake');
+      await sleep(700);
+      textbox.textContent = '…'.repeat(i + 2);
+    }
+    await sleep(400);
+    ball.classList.add('caught');
+    stars(hover.x, ground);
+    await say('¡Ya está! ¡Atrapaste al 30 salvaje!', 1300);
+    await say('Los datos del 30 se registrarán en la POKéDEX.', 1100);
+    openDex();
+  }
+
+  function stars(x, y) {
+    for (let i = 0; i < 8; i++) {
+      const s = document.createElement('div');
+      s.className = 'star'; s.textContent = '★';
+      const a = (i / 8) * Math.PI * 2;
+      s.style.left = (x - 10) + 'px'; s.style.top = (y - 10) + 'px';
+      s.style.setProperty('--dx', Math.cos(a) * 60 + 'px');
+      s.style.setProperty('--dy', Math.sin(a) * 60 - 20 + 'px');
+      document.body.appendChild(s);
+      s.addEventListener('animationend', () => s.remove());
+    }
+  }
+
+  /* ---------- Pokédex ---------- */
+  async function openDex() {
+    textbox.classList.remove('on');
+    $('dexStage').classList.add('on');
+    await sleep(700);
+    const lines = [
+      [0, 'Escaneando…'],
+      [.2, 'Nº 030 detectado.'],
+      [.45, 'Tipo: Corazón / Fuerza'],
+      [.7, 'Batallas ganadas: incontables'],
+      [.9, 'Identificando entrenadora…']
+    ];
+    const status = $('dexStatus'), bar = $('dexBar'), img = $('dexImg');
+    let li = 0;
+    await tween(reduce ? 800 : 4200, t => {
+      bar.style.width = (t * 100).toFixed(1) + '%';
+      const k = 1 - t;
+      img.style.filter = `blur(${14 * k}px) grayscale(${k}) brightness(${.6 + .4 * t})`;
+      while (li < lines.length && t >= lines[li][0]) status.textContent = lines[li++][1];
+    });
+    status.innerHTML = '¡Registro completo!<br>¡Es GERAL!';
+    $('dexBtn').classList.add('ready');
+  }
+
+  $('dexBtn').addEventListener('click', async () => {
+    $('dex').classList.add('zoomout');
+    await sleep(450);
+    $('cardStage').classList.add('on');
+    await sleep(600);
+    $('dexStage').classList.remove('on');
+    petals();
+  });
+
+  function petals() {
+    if (reduce) return;
+    const colors = ['#ff6f91', '#ff9f43', '#ffd23f', '#c86dd7', '#e8365d', '#ffb1c3'];
+    for (let i = 0; i < 70; i++) {
+      const p = document.createElement('div');
+      p.className = 'petal';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.background = colors[i % colors.length];
+      p.style.setProperty('--d', (5 + Math.random() * 5) + 's');
+      p.style.setProperty('--delay', (Math.random() * 4) + 's');
+      p.style.setProperty('--x', (Math.random() * 200 - 100) + 'px');
+      p.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg');
+      document.body.appendChild(p);
+      p.addEventListener('animationend', () => p.remove());
+    }
+  }
+
+  /* ---------- inicio ---------- */
+  async function start() {
+    const startEl = $('start');
+    startEl.removeEventListener('click', start);
+    $('flashes').classList.add('go');
+    await sleep(900);
+    const wipe = $('wipe');
+    wipe.classList.add('close');
+    await sleep(850);
+    startEl.classList.add('gone');
+    layout();
+    enterOff = W;
+    monVisible = true;
+    wipe.classList.remove('close');
+    wipe.classList.add('open');
+    await sleep(800);
+    wipe.style.display = 'none';
+    hud.classList.add('on');
+    await say('¡Un 30 salvaje apareció!', 1000);
+    moving = true;
+    placeBallRest();
+    ball.style.opacity = 1;
+    ballState = 'ready';
+    ball.classList.add('ready');
+    say('¡Atrápalo! Toca al 30 para lanzar la POKé BALL.', 0);
+  }
+
+  ball.style.opacity = 0;
+  addEventListener('resize', layout);
+  field.addEventListener('pointerdown', onThrow);
+  $('start').addEventListener('click', start);
+  $('again').addEventListener('click', () => location.reload());
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(layout);
+  layout();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
