@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramo Secreto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,600&family=Caveat:wght@500;700&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep-1:#241129;
+    --bg-deep-2:#3a1a3f;
+    --bg-deep-3:#170a1e;
+    --paper:#f7ecdf;
+    --paper-2:#efe0cc;
+    --ink:#4a2330;
+    --ink-soft:#7a4a52;
+    --gold:#c9a15a;
+    --gold-soft:#e6c584;
+    --rose:#e0728a;
+    --rose-deep:#b5445f;
+    --blush:#f3c2cf;
+    --cream-petal:#f4dfb0;
+    --leaf:#7c9473;
+    --star:#f6e9d8;
+    --cover-grad-1:#3d1524;
+    --cover-grad-2:#5c2338;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    min-height:100dvh;
+    background:
+      radial-gradient(1px 1px at 12% 18%, var(--star), transparent 60%),
+      radial-gradient(1px 1px at 28% 64%, var(--star), transparent 60%),
+      radial-gradient(1.5px 1.5px at 46% 30%, var(--star), transparent 60%),
+      radial-gradient(1px 1px at 62% 12%, var(--star), transparent 60%),
+      radial-gradient(1.5px 1.5px at 78% 48%, var(--star), transparent 60%),
+      radial-gradient(1px 1px at 88% 72%, var(--star), transparent 60%),
+      radial-gradient(1px 1px at 8% 82%, var(--star), transparent 60%),
+      radial-gradient(1.5px 1.5px at 94% 22%, var(--star), transparent 60%),
+      radial-gradient(1px 1px at 55% 88%, var(--star), transparent 60%),
+      linear-gradient(160deg, var(--bg-deep-1), var(--bg-deep-2) 55%, var(--bg-deep-3));
+    background-attachment: fixed;
+    color: var(--paper);
+    font-family: 'Jost', system-ui, sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+  }
+
+  .stage{
+    width:100%;
+    max-width: 480px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:22px;
+  }
+
+  .eyebrow{
+    font-family:'Jost', sans-serif;
+    font-size:12px;
+    letter-spacing:.32em;
+    text-transform:uppercase;
+    color: var(--gold-soft);
+    text-align:center;
+  }
+
+  .card-scene{
+    position:relative;
+    width: clamp(250px, 78vw, 360px);
+    aspect-ratio: 3 / 4;
+    perspective: 1600px;
+    background:none;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card-scene:focus-visible{
+    outline: 3px solid var(--gold);
+    outline-offset: 10px;
+    border-radius: 14px;
+  }
+
+  .card-inner, .card-cover{
+    position:absolute;
+    inset:0;
+    border-radius:14px;
+  }
+
+  /* ---- inner page: bouquet + message ---- */
+  .card-inner{
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.35), transparent 60%),
+      linear-gradient(175deg, var(--paper), var(--paper-2));
+    box-shadow: 0 18px 40px rgba(10,4,14,.45), inset 0 0 0 1px rgba(255,255,255,.4);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    padding: 8% 8% 9%;
+    z-index:1;
+  }
+
+  .bouquet{
+    width:100%;
+    height:auto;
+    overflow:visible;
+  }
+
+  .message{
+    margin: 4% 0 0;
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: clamp(22px, 6.2vw, 30px);
+    line-height:1.25;
+    color: var(--rose-deep);
+    opacity:0;
+    transform: translateY(10px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+
+  .signature{
+    margin-top: 2%;
+    font-family:'Jost', sans-serif;
+    font-size:11px;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    color: var(--ink-soft);
+    opacity:0;
+    transform: translateY(8px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+
+  /* ---- cover ---- */
+  .card-cover{
+    z-index:3;
+    transform-origin: left center;
+    transform: rotateY(0deg);
+    transition: transform 1.05s cubic-bezier(.62,.05,.3,1), box-shadow .6s ease;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background:
+      radial-gradient(140% 100% at 15% 0%, rgba(255,255,255,.08), transparent 55%),
+      linear-gradient(155deg, var(--cover-grad-1), var(--cover-grad-2) 65%, var(--cover-grad-1));
+    box-shadow: 0 18px 40px rgba(10,4,14,.55), inset 0 0 0 1px rgba(230,197,132,.25);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap: 14px;
+    padding: 10%;
+  }
+  .card-cover::before{
+    content:"";
+    position:absolute;
+    inset: 14px;
+    border: 1px solid rgba(230,197,132,.35);
+    border-radius: 8px;
+    pointer-events:none;
+  }
+
+  .cover-title{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight:600;
+    font-size: clamp(30px, 8vw, 40px);
+    color: var(--paper);
+    text-wrap: balance;
+    text-align:center;
+  }
+
+  .seal{
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--gold-soft), var(--gold) 70%, #a3793a 100%);
+    box-shadow: 0 6px 16px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.25);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 26px;
+    animation: pulse 2.6s ease-in-out infinite;
+  }
+
+  .cover-hint{
+    font-family:'Jost', sans-serif;
+    font-size:11px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color: var(--gold-soft);
+  }
+
+  @keyframes pulse{
+    0%, 100%{ transform: scale(1); box-shadow: 0 6px 16px rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.25); }
+    50%{ transform: scale(1.06); box-shadow: 0 8px 22px rgba(201,161,90,.45), inset 0 0 0 2px rgba(255,255,255,.3); }
+  }
+
+  /* ---- opened state ---- */
+  .card-scene.open .card-cover{
+    transform: rotateY(-148deg);
+    box-shadow: 0 4px 18px rgba(10,4,14,.4);
+  }
+  .card-scene.open .message{
+    opacity:1;
+    transform:translateY(0);
+    transition-delay: 1.35s;
+  }
+  .card-scene.open .signature{
+    opacity:1;
+    transform:translateY(0);
+    transition-delay: 1.55s;
+  }
+
+  /* ---- bouquet parts (animated via JS-generated SVG) ---- */
+  .bouquet .stem{
+    fill:none;
+    stroke: var(--leaf);
+    stroke-width:3;
+    stroke-linecap:round;
+    opacity:1;
+  }
+  .bouquet .leaf, .bouquet .flower{
+    opacity:0;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(.2);
+  }
+
+  .card-scene.open .bouquet .stem{
+    animation: drawStem .55s ease-out forwards;
+    animation-delay: calc(var(--d, 0) * 1s);
+  }
+  .card-scene.open .bouquet .leaf{
+    animation: bloom .5s ease-out forwards;
+    animation-delay: calc(var(--d, 0) * 1s + .18s);
+  }
+  .card-scene.open .bouquet .flower{
+    animation: bloom .6s cubic-bezier(.34,1.56,.64,1) forwards;
+    animation-delay: calc(var(--d, 0) * 1s + .34s);
+  }
+
+  @keyframes drawStem{ to{ stroke-dashoffset:0; } }
+  @keyframes bloom{
+    from{ opacity:0; transform: scale(.2); }
+    to{ opacity:1; transform: scale(1); }
+  }
+
+  .petal-rose{ fill: var(--rose); }
+  .petal-blush{ fill: var(--blush); }
+  .petal-cream{ fill: var(--cream-petal); }
+  .flower-center{ fill: var(--gold); }
+  .leaf-shape{ fill: var(--leaf); }
+
+  .hint{
+    font-family:'Jost', sans-serif;
+    font-size:12px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color: var(--gold-soft);
+    opacity:.85;
+    text-align:center;
+    min-height: 1.4em;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{
+      animation-duration: .01ms !important;
+      animation-delay: 0s !important;
+      transition-duration: .01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <main class="stage">
+    <p class="eyebrow">Con cariño, para ti</p>
+
+    <button class="card-scene" id="cardScene" aria-pressed="false" aria-label="Abrir la carta">
+      <div class="card-inner">
+        <svg class="bouquet" id="bouquet" viewBox="0 0 300 220" aria-hidden="true"></svg>
+        <p class="message">Unas hermosas flores<br>para una chica hermosa</p>
+        <p class="signature">✿ hecho con cariño ✿</p>
+      </div>
+
+      <div class="card-cover">
+        <span class="cover-title">Para ti</span>
+        <span class="seal" aria-hidden="true">🌷</span>
+        <span class="cover-hint">Toca para abrir</span>
+      </div>
+    </button>
+
+    <p class="hint" id="hint">Toca la carta para abrirla</p>
+  </main>
+
+<script>
+(function(){
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.getElementById('bouquet');
+  const baseX = 150, baseY = 214;
+
+  const flowers = [
+    { x: 150, y: 58,  scale: 1.15, hue: 'rose',  petals: 8, delay: 0.55 },
+    { x: 96,  y: 92,  scale: 0.9,  hue: 'blush', petals: 7, delay: 0.35 },
+    { x: 204, y: 92,  scale: 0.9,  hue: 'blush', petals: 7, delay: 0.7 },
+    { x: 58,  y: 140, scale: 0.72, hue: 'cream', petals: 6, delay: 0.15 },
+    { x: 242, y: 140, scale: 0.72, hue: 'cream', petals: 6, delay: 0.9 },
+    { x: 150, y: 118, scale: 0.65, hue: 'rose',  petals: 6, delay: 0.5 }
+  ];
+
+  function makeStem(x, y, delay){
+    const path = document.createElementNS(NS, 'path');
+    const curve = x < baseX ? -18 : (x > baseX ? 18 : 0);
+    const midX = (baseX + x) / 2 + curve;
+    const midY = (baseY + y) / 2;
+    path.setAttribute('d', `M${baseX},${baseY} Q${midX},${midY} ${x},${y}`);
+    path.setAttribute('class', 'stem');
+    path.style.setProperty('--d', delay);
+    svg.appendChild(path);
+    requestAnimationFrame(() => {
+      const len = path.getTotalLength();
+      path.style.strokeDasharray = len;
+      path.style.strokeDashoffset = len;
+    });
+  }
+
+  function makeLeaf(x, y, angle, delay){
+    const leaf = document.createElementNS(NS, 'ellipse');
+    leaf.setAttribute('cx', x);
+    leaf.setAttribute('cy', y);
+    leaf.setAttribute('rx', 10);
+    leaf.setAttribute('ry', 4.5);
+    leaf.setAttribute('transform', `rotate(${angle} ${x} ${y})`);
+    leaf.setAttribute('class', 'leaf leaf-shape');
+    leaf.style.setProperty('--d', delay);
+    svg.appendChild(leaf);
+  }
+
+  function makeFlower(cfg){
+    const { x, y, scale, hue, petals, delay } = cfg;
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'flower');
+    g.style.setProperty('--d', delay);
+
+    for (let i = 0; i < petals; i++){
+      const angle = (360 / petals) * i;
+      const petal = document.createElementNS(NS, 'ellipse');
+      petal.setAttribute('cx', x);
+      petal.setAttribute('cy', y - 11 * scale);
+      petal.setAttribute('rx', 6.5 * scale);
+      petal.setAttribute('ry', 12.5 * scale);
+      petal.setAttribute('transform', `rotate(${angle} ${x} ${y})`);
+      petal.setAttribute('class', `petal petal-${hue}`);
+      g.appendChild(petal);
+    }
+    const center = document.createElementNS(NS, 'circle');
+    center.setAttribute('cx', x);
+    center.setAttribute('cy', y);
+    center.setAttribute('r', 4.5 * scale);
+    center.setAttribute('class', 'flower-center');
+    g.appendChild(center);
+
+    svg.appendChild(g);
+  }
+
+  flowers.forEach(f => makeStem(f.x, f.y, Math.max(0, f.delay - 0.35)));
+  flowers.forEach(f => {
+    makeLeaf(baseX + (f.x > baseX ? 14 : -14), (baseY + f.y) / 2 + 6, f.x > baseX ? -35 : 35, Math.max(0, f.delay - 0.3));
+  });
+  flowers.forEach(makeFlower);
+
+  const scene = document.getElementById('cardScene');
+  const hint = document.getElementById('hint');
+
+  scene.addEventListener('click', () => {
+    const isOpen = scene.classList.toggle('open');
+    scene.setAttribute('aria-pressed', String(isOpen));
+    hint.textContent = isOpen ? 'Toca de nuevo para cerrar' : 'Toca la carta para abrirla';
+  });
+})();
+</script>
+</body>
+</html>
