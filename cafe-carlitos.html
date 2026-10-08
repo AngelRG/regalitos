@@ -108,9 +108,9 @@
 
   /* ---------- cartel WANTED ---------- */
   .poster-stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:35;
-    perspective:1200px;pointer-events:none;padding:calc(9vh + 8px) 16px}
+    perspective:1200px;pointer-events:none;padding:calc(9vh + 8px) 16px;overflow-y:auto;align-items:safe center}
   .poster{
-    width:min(88vw,360px);max-height:100%;
+    width:min(88vw,360px);flex-shrink:0;margin:auto 0;
     background:
       radial-gradient(ellipse at 20% 15%, rgba(255,255,255,.35), transparent 40%),
       radial-gradient(ellipse at 85% 90%, rgba(120,70,20,.28), transparent 45%),
@@ -136,10 +136,21 @@
   .poster .nail{position:absolute;top:8px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;
     background:radial-gradient(circle at 35% 35%, #d9d9d9, #555 70%);box-shadow:0 2px 3px rgba(0,0,0,.5)}
   .wanted{font-family:'IM Fell English SC',serif;font-size:clamp(2.8rem,15vw,4.2rem);line-height:1;letter-spacing:.04em;margin-top:6px}
-  .photo{margin:8px auto 0;width:100%;aspect-ratio:4/3;border:3px solid var(--ink);
+  .photo{margin:8px auto 0;width:100%;aspect-ratio:16/11;border:3px solid var(--ink);
     background:linear-gradient(180deg,#cdb07a,#b8955a);position:relative;overflow:hidden;
     box-shadow:inset 0 0 30px rgba(59,36,18,.5)}
-  .photo svg{width:100%;height:100%;display:block}
+  .photo img{width:100%;height:100%;display:block;object-fit:cover;object-position:50% 30%;
+    filter:sepia(.55) contrast(1.05) saturate(.9)}
+  .photo::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 30px rgba(59,36,18,.55);pointer-events:none}
+  .photo .hat{position:absolute;right:6px;top:6px;width:22%;height:auto;transform:rotate(12deg);
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+  .photo .tag{position:absolute;left:6px;bottom:6px;font:600 .72rem/1 ui-monospace,Menlo,Consolas,monospace;
+    background:rgba(59,36,18,.85);color:var(--java-orange);padding:4px 7px;border-radius:3px}
+  .epithet{font-family:'IM Fell English SC',serif;font-size:clamp(.8rem,3.6vw,.95rem);letter-spacing:.08em;opacity:.85;margin-top:-2px}
+  .code{margin:8px auto 0;text-align:left;font:500 clamp(.62rem,2.7vw,.74rem)/1.45 ui-monospace,Menlo,Consolas,monospace;
+    background:rgba(59,36,18,.88);color:#f3ead8;padding:8px 10px;border-radius:4px;white-space:pre;overflow:hidden;
+    box-shadow:inset 0 0 12px rgba(0,0,0,.4)}
+  .code .k{color:#f89820}.code .s{color:#a8d38a}.code .c{color:#8fb4cc;font-style:italic}
   .doa{font-family:'IM Fell English SC',serif;font-size:clamp(1.05rem,5vw,1.35rem);letter-spacing:.12em;margin-top:8px;
     display:flex;align-items:center;gap:10px;justify-content:center}
   .doa::before,.doa::after{content:"";height:2px;flex:1;background:var(--ink);opacity:.6}
@@ -150,7 +161,7 @@
     margin-top:8px;color:#7a1f18}
   .footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-family:'IM Fell English SC',serif;
     font-size:.78rem;letter-spacing:.2em;opacity:.75}
-  .stamp{position:absolute;right:14px;bottom:58px;font-family:'IM Fell English SC',serif;color:var(--luffy-red);
+  .stamp{position:absolute;right:10px;bottom:10px;background:rgba(234,215,171,.35);font-family:'IM Fell English SC',serif;color:var(--luffy-red);
     border:3px solid var(--luffy-red);border-radius:6px;padding:2px 10px;font-size:1.1rem;letter-spacing:.15em;
     transform:rotate(-14deg) scale(2.5);opacity:0;mix-blend-mode:multiply}
   .stamp.hit{animation:stamp .45s cubic-bezier(.3,1.6,.5,1) forwards}
@@ -170,6 +181,12 @@
     100%{transform:translate(var(--x),110vh) rotate(var(--r))}
   }
 
+  @media (max-height:760px){
+    .wanted{font-size:2.6rem}
+    .photo{aspect-ratio:2/1}
+    .name{font-size:2.2rem}
+    .message{font-size:1.4rem}
+  }
   @media (prefers-reduced-motion: reduce){
     .grain,.dust{display:none}
   }
@@ -184,7 +201,7 @@
 <div class="flash" id="flash"></div>
 
 <div class="title-card" id="titleCard">
-  <div class="kicker">Capítulo especial</div>
+  <div class="kicker">Capítulo especial · v.cumple</div>
   <h1>El Café del Rey Pirata</h1>
 </div>
 
@@ -271,49 +288,26 @@
     <div class="nail"></div>
     <div class="wanted">WANTED</div>
     <div class="photo">
-      <svg viewBox="0 0 240 180" aria-hidden="true">
-        <!-- rayos de fondo -->
-        <g opacity=".18" fill="#3b2412">
-          <path d="M120 100 L0 0 L40 0Z"/><path d="M120 100 L90 0 L130 0Z"/><path d="M120 100 L180 0 L220 0Z"/>
-          <path d="M120 100 L240 60 L240 100Z"/><path d="M120 100 L0 70 L0 110Z"/><path d="M120 100 L240 150 L240 180 L220 180Z"/>
-          <path d="M120 100 L20 180 L0 180 L0 160Z"/>
-        </g>
-        <!-- huesos -->
-        <g stroke="#f4ecd8" stroke-width="12" stroke-linecap="round">
-          <line x1="62" y1="150" x2="178" y2="92"/>
-          <line x1="62" y1="92" x2="178" y2="150"/>
-        </g>
-        <g fill="#f4ecd8">
-          <circle cx="56" cy="146" r="9"/><circle cx="62" cy="158" r="9"/>
-          <circle cx="184" cy="88" r="9"/><circle cx="178" cy="100" r="9"/>
-          <circle cx="56" cy="96" r="9"/><circle cx="62" cy="84" r="9"/>
-          <circle cx="184" cy="154" r="9"/><circle cx="178" cy="142" r="9"/>
-        </g>
-        <!-- calavera -->
-        <path d="M120 58 C150 58 166 78 164 102 C163 116 154 124 148 128 L148 140 L92 140 L92 128 C86 124 77 116 76 102 C74 78 90 58 120 58Z" fill="#fbf5e6" stroke="#3b2412" stroke-width="2"/>
-        <ellipse cx="104" cy="104" rx="11" ry="12" fill="#2a1a0e"/>
-        <ellipse cx="136" cy="104" rx="11" ry="12" fill="#2a1a0e"/>
-        <path d="M120 114 L114 124 L126 124Z" fill="#2a1a0e"/>
-        <path d="M100 132 L100 140 M110 132 L110 140 M120 132 L120 140 M130 132 L130 140 M140 132 L140 140" stroke="#3b2412" stroke-width="2"/>
-        <!-- sombrero de paja -->
-        <ellipse cx="120" cy="66" rx="66" ry="13" fill="#e9b93c" stroke="#8a6414" stroke-width="2"/>
-        <path d="M84 64 C84 34 100 24 120 24 C140 24 156 34 156 64Z" fill="#f2c94c" stroke="#8a6414" stroke-width="2"/>
-        <path d="M84 56 C100 61 140 61 156 56 L156 64 C140 69 100 69 84 64Z" fill="#c8302a"/>
-        <path d="M96 40 C104 36 112 34 120 34" stroke="#fff" stroke-width="3" fill="none" opacity=".4" stroke-linecap="round"/>
-        <!-- mini taza de café en la esquina -->
-        <g transform="translate(190,130) scale(.5)">
-          <path d="M0 10 C0 40 10 54 30 54 C50 54 60 40 60 10Z" fill="#5382a1" stroke="#2f5873" stroke-width="3"/>
-          <path d="M58 18 C76 18 76 40 56 40" fill="none" stroke="#2f5873" stroke-width="6"/>
-          <path d="M22 4 C14 -6 30 -12 22 -24 M38 4 C30 -6 46 -12 38 -24" stroke="#f89820" stroke-width="5" fill="none" stroke-linecap="round"/>
-        </g>
+      <img src="carlitos.jpg" alt="Carlitos">
+      <span class="tag">&lt;/&gt; Java</span>
+      <div class="stamp" id="stamp">NAKAMA</div>
+      <svg class="hat" viewBox="0 0 120 60" aria-hidden="true">
+        <ellipse cx="60" cy="46" rx="56" ry="11" fill="#e9b93c" stroke="#8a6414" stroke-width="2"/>
+        <path d="M28 44 C28 16 42 6 60 6 C78 6 92 16 92 44Z" fill="#f2c94c" stroke="#8a6414" stroke-width="2"/>
+        <path d="M28 36 C44 41 76 41 92 36 L92 44 C76 49 44 49 28 44Z" fill="#c8302a"/>
       </svg>
     </div>
     <div class="doa">DEAD OR ALIVE</div>
     <div class="name">CARLITOS</div>
+    <div class="epithet">« El Ingeniero del Java »</div>
     <div class="bounty"><b>฿</b>3.000.000.000-</div>
+    <div class="code"><span class="c">// Carlitos.java</span>
+<span class="k">while</span> (vida.continua()) {
+  cafe.servir(); codigo.compilar();
+}
+System.out.println(<span class="s">"¡+1 nivel!"</span>);</div>
     <div class="message">¡Feliz cumpleaños Carlitos,<br>te queremos mucho!</div>
-    <div class="footer"><span>NAKAMA</span><span>☠</span><span>GRAND LINE</span></div>
-    <div class="stamp" id="stamp">NAKAMA</div>
+    <div class="footer"><span>NAKAMA</span><span>☠</span><span>BUILD SUCCESS</span></div>
   </div>
 </div>
 
@@ -424,7 +418,7 @@
     steam.classList.add('on');
     await sleep(900);
     scene.classList.remove('zoom');
-    await say('…para el nakama que cumple años hoy.', 2400);
+    await say('…compilado sin errores para el nakama que cumple años hoy.', 2400);
 
     flash.classList.add('go');
     await sleep(180);
