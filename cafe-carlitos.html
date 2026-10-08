@@ -34,10 +34,6 @@
     -webkit-tap-highlight-color:transparent;
   }
 
-  /* ---------- barras de cine ---------- */
-  .bar{position:fixed;left:0;right:0;height:0;background:#000;z-index:50;transition:height 1.4s cubic-bezier(.7,0,.2,1)}
-  .bar.top{top:0}.bar.bottom{bottom:0}
-  body.cinema .bar{height:9vh}
 
   .grain{position:fixed;inset:-50%;z-index:40;pointer-events:none;opacity:.06;
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
@@ -63,7 +59,7 @@
   .title-card.show h1{opacity:1;filter:none}
   .title-card.hide{opacity:0;transition:opacity 1s ease}
 
-  .subtitle{position:fixed;left:0;right:0;bottom:calc(9vh + 18px);text-align:center;z-index:45;padding:0 16px;
+  .subtitle{position:fixed;left:0;right:0;bottom:28px;text-align:center;z-index:45;padding:0 16px;
     font-size:clamp(.95rem,3.6vw,1.15rem);font-style:italic;color:#f3ead8;text-shadow:0 2px 8px #000;
     opacity:0;transition:opacity .8s ease}
   .subtitle.show{opacity:1}
@@ -80,7 +76,7 @@
   .cup-wrap:not(.used):hover .cup{filter:drop-shadow(0 0 18px rgba(143,180,204,.45))}
   .cup{transition:filter .4s ease}
 
-  .hint{position:fixed;left:0;right:0;bottom:calc(9vh + 22px);text-align:center;z-index:46;
+  .hint{position:fixed;left:0;right:0;bottom:32px;text-align:center;z-index:46;
     font-family:'Caveat',cursive;font-size:clamp(1.3rem,5vw,1.7rem);color:var(--java-orange);
     opacity:0;transition:opacity .8s ease;pointer-events:none}
   .hint.show{opacity:1;animation:pulse 1.8s ease-in-out infinite}
@@ -108,7 +104,7 @@
 
   /* ---------- cartel WANTED ---------- */
   .poster-stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:35;
-    perspective:1200px;pointer-events:none;padding:calc(9vh + 8px) 16px;overflow-y:auto;align-items:safe center}
+    perspective:1200px;pointer-events:none;padding:16px;overflow-y:auto;align-items:safe center}
   .poster{
     width:min(88vw,360px);flex-shrink:0;margin:auto 0;
     background:
@@ -167,7 +163,7 @@
   .stamp.hit{animation:stamp .45s cubic-bezier(.3,1.6,.5,1) forwards}
   @keyframes stamp{to{transform:rotate(-14deg) scale(1);opacity:.85}}
 
-  .replay{position:fixed;right:16px;top:calc(9vh + 14px);z-index:55;background:rgba(0,0,0,.45);color:#f3ead8;
+  .replay{position:fixed;right:16px;top:16px;z-index:55;background:rgba(0,0,0,.45);color:#f3ead8;
     border:1px solid rgba(248,152,32,.6);border-radius:999px;padding:8px 16px;font:500 .9rem 'Jost',sans-serif;
     cursor:pointer;opacity:0;pointer-events:none;transition:opacity .8s ease, background .2s}
   .replay.show{opacity:1;pointer-events:auto}
@@ -194,8 +190,6 @@
 </head>
 <body>
 
-<div class="bar top"></div>
-<div class="bar bottom"></div>
 <div class="grain"></div>
 <div class="vignette"></div>
 <div class="flash" id="flash"></div>
@@ -300,13 +294,14 @@
     <div class="doa">DEAD OR ALIVE</div>
     <div class="name">CARLITOS</div>
     <div class="epithet">« El Ingeniero del Java »</div>
-    <div class="bounty"><b>฿</b>3.000.000.000-</div>
+    <div class="bounty"><b>฿</b>31.000.000.000-</div>
     <div class="code"><span class="c">// Carlitos.java</span>
+<span class="k">int</span> edad = <span class="s">31</span>; <span class="c">// ¡recién compilado!</span>
 <span class="k">while</span> (vida.continua()) {
   cafe.servir(); codigo.compilar();
 }
-System.out.println(<span class="s">"¡+1 nivel!"</span>);</div>
-    <div class="message">¡Feliz cumpleaños Carlitos,<br>te queremos mucho!</div>
+System.out.println(<span class="s">"¡Nivel 31!"</span>);</div>
+    <div class="message">¡Feliz cumpleaños 31, Carlitos,<br>te queremos mucho!</div>
     <div class="footer"><span>NAKAMA</span><span>☠</span><span>BUILD SUCCESS</span></div>
   </div>
 </div>
@@ -366,7 +361,6 @@ System.out.println(<span class="s">"¡+1 nivel!"</span>);</div>
   };
 
   async function intro() {
-    document.body.classList.add('cinema');
     await sleep(900);
     $('titleCard').classList.add('show');
     await sleep(3200);
@@ -412,6 +406,7 @@ System.out.println(<span class="s">"¡+1 nivel!"</span>);</div>
     await sleep(500);
     potEnter.classList.remove('in');
     potEnter.classList.add('out');
+    setTimeout(() => potEnter.style.opacity = 0, 1000);
     subtitle.classList.remove('show');
 
     steam.classList.remove('idle');
@@ -459,6 +454,16 @@ System.out.println(<span class="s">"¡+1 nivel!"</span>);</div>
     poster.style.transition = 'transform .25s ease-out';
     landed = true;
   });
+  const fit = () => {
+    poster.style.zoom = 1;
+    const avail = innerHeight - 32;
+    const h = poster.offsetHeight;
+    if (h > avail) poster.style.zoom = (avail / h).toFixed(3);
+  };
+  fit();
+  addEventListener('resize', fit);
+  document.fonts && document.fonts.ready.then(fit);
+
   addEventListener('pointermove', e => {
     if (!landed || reduce) return;
     const x = (e.clientX / innerWidth - .5) * 10;
